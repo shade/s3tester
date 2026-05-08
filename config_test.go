@@ -1135,6 +1135,12 @@ func TestRandomRangeValidation(t *testing.T) {
 		t.Fatalf("invalid random-range should fail with error message: %s", err)
 	}
 
+	cmdline = generateValidCmdlineSetting("-operation=get", "-random-range=/1")
+	_, err = parse(cmdline)
+	if err == nil || err.Error() != randomRangeInvalidMinMaxErr {
+		t.Fatalf("invalid random-range should fail with error message: %s", err)
+	}
+
 	cmdline = generateValidCmdlineSetting("-operation=get", "-random-range=500-600/200")
 	_, err = parse(cmdline)
 	if err == nil || err.Error() != randomRangeInvalidSizeErr {
@@ -1167,7 +1173,7 @@ func TestRandomRangeValidation(t *testing.T) {
 
 	cmdline = generateValidCmdlineSetting("-operation=get", "-random-range=0-0/100")
 	_, err = parse(cmdline)
-	if err == nil || err.Error() != randomRangeInvalidMinMaxErr {
+	if err == nil || err.Error() != randomRangeInvalidSizeErr {
 		t.Fatalf("invalid random-range should fail with error message: %s", err)
 	}
 
@@ -1185,6 +1191,20 @@ func TestRandomRangeValidation(t *testing.T) {
 	if args.randomRangeMax != 100 {
 		t.Fatalf("Expected randomRangeMax: 100, but got: %d", args.randomRangeMax)
 	}
+
+	cmdline = generateValidCmdlineSetting("-operation=get", "-random-range=0-0/1")
+	config, err = parse(cmdline)
+	if err != nil {
+		t.Fatalf("Expected no error, but got: %s", err)
+	}
+
+	args = config.worklist[0]
+	if args.randomRangeMin != 0 {
+		t.Fatalf("Expected randomRangeMin: 0, but got: %d", args.randomRangeMin)
+	}
+	if args.randomRangeMax != 0 {
+		t.Fatalf("Expected randomRangeMax: 0, but got: %d", args.randomRangeMax)
+	}
 }
 
 func TestUniformDist(t *testing.T) {
@@ -1195,6 +1215,12 @@ func TestUniformDist(t *testing.T) {
 	}
 
 	cmdline = generateValidCmdlineSetting("-operation=put", "-uniformDist=1000-100000")
+	_, err = parse(cmdline)
+	if err != nil {
+		t.Fatalf("Expected no error, but got: %s", err)
+	}
+
+	cmdline = generateValidCmdlineSetting("-operation=put", "-uniformDist=0-100000")
 	_, err = parse(cmdline)
 	if err != nil {
 		t.Fatalf("Expected no error, but got: %s", err)
@@ -1270,6 +1296,12 @@ func TestRangeValidation(t *testing.T) {
 	}
 
 	cmdline = generateValidCmdlineSetting("-operation=get", "-range=bytes=0-10")
+	_, err = parse(cmdline)
+	if err != nil {
+		t.Fatalf("Expected no err, but got %s", err)
+	}
+
+	cmdline = generateValidCmdlineSetting("-operation=get", "-range=bytes=0-0")
 	_, err = parse(cmdline)
 	if err != nil {
 		t.Fatalf("Expected no err, but got %s", err)

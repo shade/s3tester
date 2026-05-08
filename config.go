@@ -121,7 +121,7 @@ func NewParameters() *Parameters {
 }
 
 func (params *Parameters) hasRandomSize() bool {
-	return params.max != 0 && params.min != 0
+	return params.max != -1 && params.min != -1
 }
 
 func (params *Parameters) hasRandomRange() bool {
@@ -584,6 +584,9 @@ func setupParam(args *Parameters) error {
 			return errors.New(randomRangeInvalidFormat)
 		}
 
+		if randomRangeParts[0] == "" {
+			return errors.New(randomRangeInvalidMinMaxErr)
+		}
 		args.randomRangeMin, args.randomRangeMax, err = extractRangeMinMax(randomRangeParts[0])
 		if err != nil {
 			return errors.New(randomRangeInvalidMinMaxErr)
@@ -621,7 +624,7 @@ func setupParam(args *Parameters) error {
 
 	// Precompute object body block for PUT operations. This avoids data generation for each PUT.
 	// Keep multipart put as unique objects for each object. The bodies are shared between parts so this already has some optimization.
-	if args.Operation == "put" && args.Size > 0 && args.Prefix != "" {
+	if args.Operation == "put" && args.Size > 0 && args.Prefix != "" && args.UniformDist != "" {
 		if err := args.PreallocatePutBody(); err != nil {
 			return fmt.Errorf("preallocating put body failed: %v", err)
 		}
@@ -632,7 +635,7 @@ func setupParam(args *Parameters) error {
 
 func extractRangeMinMax(arg string) (min int64, max int64, err error) {
 	if arg == "" {
-		return 0, 0, nil
+		return -1, -1, nil // using "-1" as a sentinel value
 	}
 
 	boundaries := strings.Split(arg, "-")
@@ -651,7 +654,7 @@ func extractRangeMinMax(arg string) (min int64, max int64, err error) {
 	}
 
 	if min > max {
-		return 0, 0, errors.New("max must be larger than min")
+		return 0, 0, errors.New("max must be greater than or equal to min")
 	}
 
 	return min, max, nil
