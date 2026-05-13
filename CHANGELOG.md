@@ -1,4 +1,11 @@
 # Changelog
+## v3.2.2
+
+### Changed
+- Fixed a bug in validation of range-based arguments
+- Fixed some incorrect text for uniformDist
+- Fix a bug with uniformDist introduced in 3.2.1
+
 ## v3.2.1
 ### Added
 - Precompute the body and MD5 for S3 PUTs and share the data block for all workers. This speeds up performance by 4x depending on object size.
