@@ -4,7 +4,6 @@
 ### Changed
 - Fix a bug with uniformDist (this was not fixed in 3.2.2)
 
-# Changelog
 ## v3.2.2
 
 ### Changed
