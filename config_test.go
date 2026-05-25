@@ -1221,9 +1221,15 @@ func TestUniformDist(t *testing.T) {
 	}
 
 	cmdline = generateValidCmdlineSetting("-operation=put", "-uniformDist=0-100000")
-	_, err = parse(cmdline)
+	config, err := parse(cmdline)
 	if err != nil {
 		t.Fatalf("Expected no error, but got: %s", err)
+	}
+	if len(config.worklist) != 1 {
+		t.Fatalf("Expected parsed config to have 1 set of Parameters")
+	}
+	if config.worklist[0].putBody != nil {
+		t.Fatalf("Expected config to NOT use pre-allocated body")
 	}
 
 	cmdline = generateValidCmdlineSetting("-operation=delete", "-uniformDist=1000-100000")

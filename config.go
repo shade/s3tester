@@ -624,7 +624,8 @@ func setupParam(args *Parameters) error {
 
 	// Precompute object body block for PUT operations. This avoids data generation for each PUT.
 	// Keep multipart put as unique objects for each object. The bodies are shared between parts so this already has some optimization.
-	if args.Operation == "put" && args.Size > 0 && args.Prefix != "" && args.UniformDist != "" {
+	// Don't use Preallocated PUT body when uniformDist is specified, the randomized size causes MD5 checksum issues
+	if args.Operation == "put" && args.Size > 0 && args.Prefix != "" && args.UniformDist == "" {
 		if err := args.PreallocatePutBody(); err != nil {
 			return fmt.Errorf("preallocating put body failed: %v", err)
 		}
